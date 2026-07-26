@@ -511,7 +511,7 @@ def render_hero_section() -> None:
             """
             <div style="display:flex; align-items:center; justify-content:center; height:100%;">
                 <div style="font-size: 9rem; line-height:1; text-align:center; filter: drop-shadow(0 12px 20px rgba(15,109,191,0.35));">
-                    🩺👨‍⚕️
+                     🩸💉
                 </div>
             </div>
             """,
