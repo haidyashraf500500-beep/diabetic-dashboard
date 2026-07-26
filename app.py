@@ -483,10 +483,11 @@ def inject_custom_css() -> None:
 # UI COMPONENTS
 # ==============================================================================
 
+ 
 def render_hero_section() -> None:
     """Render the top hero / landing section."""
     col_text, col_visual = st.columns([2.1, 1], gap="large")
-
+ 
     with col_text:
         st.markdown(
             f"""
@@ -505,19 +506,33 @@ def render_hero_section() -> None:
             """,
             unsafe_allow_html=True,
         )
-
+ 
     with col_visual:
-        st.markdown(
-            """
-            <div style="display:flex; align-items:center; justify-content:center; height:100%;">
-                <div style="font-size: 9rem; line-height:1; text-align:center; filter: drop-shadow(0 12px 20px rgba(15,109,191,0.35));">
-                     🩸💉
+        hero_b64 = get_image_base64(HERO_IMAGE_PATH)
+        if hero_b64:
+            st.markdown(
+                f"""
+                <div style="display:flex; align-items:center; justify-content:center; height:100%;">
+                    <img src="data:image/jpeg;base64,{hero_b64}"
+                         style="width:100%; max-width:420px; border-radius:24px;
+                                filter: drop-shadow(0 16px 28px rgba(15,109,191,0.30));" />
                 </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            # Fallback visual if the illustration asset is missing
+            st.markdown(
+                """
+                <div style="display:flex; align-items:center; justify-content:center; height:100%;">
+                    <div style="font-size: 9rem; line-height:1; text-align:center; filter: drop-shadow(0 12px 20px rgba(15,109,191,0.35));">
+                        🩸💉
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+ 
 
 def render_metric_row() -> None:
     """Render a row of trust / info metrics under the hero section."""
