@@ -17,6 +17,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+import base64
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -39,6 +40,7 @@ BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "models" / "xgb_model.pkl"
 PREPROCESSOR_PATH = BASE_DIR / "models" / "preprocessor.pkl"
 LABEL_ENCODER_PATH = BASE_DIR / "models" / "label_encoder.pkl"
+HERO_IMAGE_PATH = BASE_DIR / "assets" / "hero-illustration.jpg"
 
 # Diabetes classes that should be treated as "elevated risk" for UI coloring.
 # Everything else that is not "No Diabetes" is considered elevated risk.
@@ -161,6 +163,21 @@ def load_artifacts() -> tuple[Optional[object], Optional[object], Optional[objec
         return model, preprocessor, label_encoder, None
     except Exception as exc:  # noqa: BLE001 — surface any loading failure to the UI
         return None, None, None, f"Failed to load model artifacts: {exc}"
+
+
+@st.cache_data(show_spinner=False)
+def get_image_base64(path: Path) -> Optional[str]:
+    """Read an image file from disk and return it as a base64-encoded string,
+    so it can be embedded directly inside styled HTML (e.g. for drop-shadow
+    filters that st.image cannot apply). Returns None if the file is missing.
+    """
+    if not path.exists():
+        return None
+    try:
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode("utf-8")
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def run_prediction(patient: PatientInput) -> PredictionResult:
@@ -483,11 +500,10 @@ def inject_custom_css() -> None:
 # UI COMPONENTS
 # ==============================================================================
 
- 
 def render_hero_section() -> None:
     """Render the top hero / landing section."""
     col_text, col_visual = st.columns([2.1, 1], gap="large")
- 
+
     with col_text:
         st.markdown(
             f"""
@@ -506,7 +522,7 @@ def render_hero_section() -> None:
             """,
             unsafe_allow_html=True,
         )
- 
+
     with col_visual:
         hero_b64 = get_image_base64(HERO_IMAGE_PATH)
         if hero_b64:
@@ -532,13 +548,13 @@ def render_hero_section() -> None:
                 """,
                 unsafe_allow_html=True,
             )
- 
+
 
 def render_metric_row() -> None:
     """Render a row of trust / info metrics under the hero section."""
     metrics = [
         ("🎯", "5-Class", "Prediction Model"),
-        ("📊", "12", "Clinical Inputs"),
+        ("📊", "11", "Clinical Inputs"),
     ]
     cols = st.columns(2)
     for col, (icon, value, label) in zip(cols, metrics):
