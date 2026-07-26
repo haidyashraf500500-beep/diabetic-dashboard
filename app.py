@@ -71,6 +71,8 @@ class PatientInput:
     age: int
     gender: str
     bmi: float
+    height_cm: float
+    weight_kg: float
     hba1c: float
     glucose_fasting: float
     glucose_postprandial: float
@@ -296,8 +298,9 @@ def inject_custom_css() -> None:
             margin-bottom: 0.3rem;
         }}
         .section-subheading {{
-            color: #5A7184;
+            color: #33424F;
             font-size: 0.95rem;
+            font-weight: 500;
             margin-bottom: 1.4rem;
         }}
 
@@ -334,7 +337,8 @@ def inject_custom_css() -> None:
         }}
         .result-subtitle {{
             font-size: 1rem;
-            color: #46586B;
+            color: #2E3B4A;
+            font-weight: 500;
             margin-bottom: 0.5rem;
         }}
 
@@ -488,9 +492,10 @@ def render_hero_section() -> None:
                 <div class="hero-subtitle">AI-Based Diabetes Prediction &<br>Personalized Risk Analysis</div>
                 <div class="hero-desc">
                     GlucoGuide uses a trained machine learning model to analyze your
-                    clinical profile — glucose levels, BMI, blood pressure, HbA1c and
-                    more — and estimate your diabetes risk category, complete with
-                    personalized, easy-to-understand health recommendations.
+                    clinical profile — glucose levels, height &amp; weight, blood
+                    pressure, HbA1c and more — and estimate your diabetes risk
+                    category, complete with personalized, easy-to-understand
+                    health recommendations.
                 </div>
             </div>
             """,
@@ -514,11 +519,9 @@ def render_metric_row() -> None:
     """Render a row of trust / info metrics under the hero section."""
     metrics = [
         ("🎯", "5-Class", "Prediction Model"),
-        ("⚡", "< 1 sec", "Inference Time"),
-        ("🔒", "100%", "Local & Private"),
         ("📊", "11", "Clinical Inputs"),
     ]
-    cols = st.columns(4)
+    cols = st.columns(2)
     for col, (icon, value, label) in zip(cols, metrics):
         with col:
             st.markdown(
@@ -565,11 +568,17 @@ def render_input_form() -> Optional[PatientInput]:
                 index=0,
                 help="Biological sex recorded for the patient.",
             )
-            bmi = st.number_input(
-                "⚖️ BMI (Body Mass Index)",
-                min_value=10.0, max_value=70.0, value=25.0, step=0.1,
-                help="Body Mass Index in kg/m². Normal range: 18.5–24.9.",
-                placeholder="e.g. 25.0",
+            height_cm = st.number_input(
+                "📏 Height (cm)",
+                min_value=100.0, max_value=250.0, value=170.0, step=1.0,
+                help="Patient's height in centimeters. Valid range: 100–250 cm.",
+                placeholder="e.g. 170",
+            )
+            weight_kg = st.number_input(
+                "⚖️ Weight (kg)",
+                min_value=20.0, max_value=300.0, value=72.0, step=0.5,
+                help="Patient's body weight in kilograms. Valid range: 20–300 kg.",
+                placeholder="e.g. 72",
             )
             hba1c = st.number_input(
                 "🧪 HbA1c (%)",
@@ -630,10 +639,16 @@ def render_input_form() -> Optional[PatientInput]:
     if not submitted:
         return None
 
+    # BMI is derived from height (cm) and weight (kg): BMI = weight / height(m)^2
+    height_m = height_cm / 100.0
+    computed_bmi = weight_kg / (height_m ** 2)
+
     return PatientInput(
         age=int(age),
         gender=gender,
-        bmi=float(bmi),
+        bmi=float(computed_bmi),
+        height_cm=float(height_cm),
+        weight_kg=float(weight_kg),
         hba1c=float(hba1c),
         glucose_fasting=float(glucose_fasting),
         glucose_postprandial=float(glucose_postprandial),
@@ -813,6 +828,16 @@ def render_results_section(patient: PatientInput) -> None:
     st.write("")
 
     render_result_card(result)
+
+    st.markdown(
+        f"""
+        <div class="metric-badge" style="display:inline-block; margin-bottom:1.2rem;">
+            <div class="label">Calculated BMI</div>
+            <div class="value">{patient.bmi:.1f}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     col_gauge, col_spacer = st.columns([1, 1.4])
     with col_gauge:
