@@ -334,7 +334,11 @@ def inject_custom_css() -> None:
             font-size: 1.8rem;
             font-weight: 800;
             margin: 0.4rem 0 0.2rem 0;
+            color: #1A2733;
         }}
+        .result-card.low-risk .result-title {{ color: #0F5C33; }}
+        .result-card.moderate-risk .result-title {{ color: #8A4B0E; }}
+        .result-card.high-risk .result-title {{ color: #8C1F1F; }}
         .result-subtitle {{
             font-size: 1rem;
             color: #2E3B4A;
@@ -745,9 +749,10 @@ def render_probability_breakdown(result: PredictionResult) -> None:
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(range=[0, 105], showgrid=False, visible=False),
-        yaxis=dict(autorange="reversed"),
-        font={"family": "Inter", "size": 13},
+        yaxis=dict(autorange="reversed", tickfont=dict(color="#1A2733", size=13)),
+        font={"family": "Inter", "size": 13, "color": "#1A2733"},
     )
+    fig.update_traces(textfont=dict(color="#1A2733", size=12))
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     st.markdown("</div>", unsafe_allow_html=True)
 
