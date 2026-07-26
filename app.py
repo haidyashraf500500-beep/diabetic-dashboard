@@ -554,7 +554,7 @@ def render_metric_row() -> None:
     """Render a row of trust / info metrics under the hero section."""
     metrics = [
         ("🎯", "5-Class", "Prediction Model"),
-        ("📊", "11", "Clinical Inputs"),
+        ("📊", "12", "Clinical Inputs"),
     ]
     cols = st.columns(2)
     for col, (icon, value, label) in zip(cols, metrics):
